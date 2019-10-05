@@ -10,7 +10,7 @@ module.exports = {
       { test: /\.css$/, use: ['style-loader', 'css-loader'] }
     ]
   },
-  plugins: [new HtmlWebpackPlugin()],
+  plugins: [new HtmlWebpackPlugin({ template: 'index.html' })],
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js'

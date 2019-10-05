@@ -4,11 +4,23 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "webpack-dev-server",
+    "build": "NODE_ENV='production' webpack",
+    "window-build": "SET NODE_ENV='production' && webpack"
   },
   "keywords": [],
   "author": "Olaoluwa Mustapha <jomeemustapha@gmail.com>",
   "license": "MIT",
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-class-properties",
+      "syntax-dynamic-import"
+    ]
+  },
   "devDependencies": {
     "@babel/core": "^7.6.2",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
@@ -24,6 +36,7 @@
     "webpack-dev-server": "^3.8.2"
   },
   "dependencies": {
+    "prop-types": "^15.7.2",
     "react": "^16.10.2",
     "react-dom": "^16.10.2"
   }
