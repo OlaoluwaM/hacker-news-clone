@@ -1,5 +1,6 @@
 import React from 'react';
 import { fetchMainPosts } from '../utils/api';
+import toFullDateString from '../helpers/helper';
 import PropTypes from 'prop-types';
 
 export default class PostTemplate extends React.Component {
@@ -52,7 +53,7 @@ export default class PostTemplate extends React.Component {
                   <span>
                     by <a href='#'>{by}</a>
                   </span>
-                  <span>on {time}</span>
+                  <span>on {toFullDateString(time)}</span>
                   <span>
                     with <a href='#'>{descendants}</a> comments
                   </span>

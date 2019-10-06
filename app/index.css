@@ -27,6 +27,10 @@ body {
   font-weight: bold;
   color: rgb(187, 46, 31);
 }
+.meta-info-light {
+  margin-top: 5px;
+  color: grey;
+}
 .meta-info-light span {
   margin: 10px 0;
   margin-right: 6px;
