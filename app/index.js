@@ -1,14 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import PostDisplay from './components/Top';
+import { TopPostDisplay, NewPostDisplay } from './components/Posts';
 
 class App extends React.Component {
   render() {
     return (
       <div>
         <div className='container'>
-          <PostDisplay />
+          {/* <TopPostDisplay /> */}
+          <NewPostDisplay />
         </div>
       </div>
     );

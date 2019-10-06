@@ -6,6 +6,7 @@ export function fetchMainPosts(type) {
     .then((res) => res.json())
     .then((ids) => {
       if (!ids) {
+        console.warn(`Could not get the ${type} of posts`);
         throw new Error(`Could not get the ${type} of posts`);
       }
       return ids.splice(0, 50);
@@ -25,5 +26,3 @@ function removeDeadPosts(posts) {
 function removeDeletedPosts(posts) {
   return posts.filter(({ deleted }) => !deleted);
 }
-
-fetchMainPosts('top').then(console.log);
