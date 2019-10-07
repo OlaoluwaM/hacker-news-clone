@@ -15,7 +15,7 @@ export function fetchMainPosts(type) {
     .then((posts) => removeDeletedPosts(removeDeadPosts(posts)));
 }
 
-function fetchPost(id) {
+export function fetchPost(id) {
   return fetch(`${api}/item/${id}.${json}`).then((res) => res.json());
 }
 
@@ -25,4 +25,7 @@ function removeDeadPosts(posts) {
 
 function removeDeletedPosts(posts) {
   return posts.filter(({ deleted }) => !deleted);
+}
+export function onlyComments({ kids }) {
+  return Promise.all(kids.map(fetchPost));
 }

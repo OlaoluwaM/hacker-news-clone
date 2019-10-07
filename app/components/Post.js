@@ -1,68 +1,76 @@
 import React from 'react';
 import { fetchMainPosts } from '../utils/api';
-import toFullDateString from '../helpers/helper';
+import Comment from './Comments';
+import Loading from './Loading';
 import PropTypes from 'prop-types';
+import PostTitle from './PostTitle';
+import PostMetaInfo from './PostMetaInfo';
 
-export default class PostTemplate extends React.Component {
+export default class Posts extends React.Component {
   static propTypes = {
     type: PropTypes.string.isRequired
   };
 
   state = {
     posts: null,
-    loading: true,
+    showComments: false,
+    commentId: null,
     error: null
   };
+
   componentDidMount() {
     fetchMainPosts(this.props.type)
       .then((posts) => {
         this.setState({
           posts,
-          loading: false,
           error: null
         });
       })
       .catch((error) => {
         console.warn(error);
+
         this.setState({
           error: 'Could not get posts at this time'
         });
       });
   }
-  isLoading = () => {
-    const { loading, error } = this.state;
-    return error === null && loading === true;
-  };
-  render() {
-    const { posts, error } = this.state;
 
-    if (this.isLoading()) {
-      return <p>Loading...</p>;
-    } else if (error) {
-      return <p>{error}</p>;
-    } else {
-      return (
-        <ul>
-          {posts.map(({ id, by, title, descendants, url, time }) => {
-            return (
-              <li key={id} className='post'>
-                <a href={url} className='link'>
-                  {title}
-                </a>
-                <div className='meta-info-light'>
-                  <span>
-                    by <a href='#'>{by}</a>
-                  </span>
-                  <span>on {toFullDateString(time)}</span>
-                  <span>
-                    with <a href='#'>{descendants}</a> comments
-                  </span>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      );
-    }
+  getPostID = (id) => {
+    this.setState({
+      showComments: true,
+      commentId: id
+    });
+  };
+
+  render() {
+    const { posts, error, showComments, commentId } = this.state;
+    return (
+      <React.Fragment>
+        {error && <p>{error}</p>}
+
+        {showComments && <Comment postID={commentId} />}
+
+        <Loading data={posts} errorState={error} text='Fetching Posts' />
+
+        {posts && (
+          <ul>
+            {posts.map(({ id, by, title, descendants, url, time }) => {
+              return (
+                <li key={id} className='post'>
+                  <PostTitle url={url} title={title} />
+                  <PostMetaInfo
+                    id={id}
+                    by={by}
+                    time={time}
+                    descendants={descendants}
+                    getPostID={this.getPostID}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </React.Fragment>
+    );
   }
 }

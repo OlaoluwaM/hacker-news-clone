@@ -1,10 +1,10 @@
 import React from 'react';
-import PostTemplate from './Post';
+import Posts from './Post';
 
 export function TopPostDisplay() {
-  return <PostTemplate type='top' />;
+  return <Posts type='top' />;
 }
 
 export function NewPostDisplay() {
-  return <PostTemplate type='new' />;
+  return <Posts type='new' />;
 }
