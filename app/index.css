@@ -49,3 +49,12 @@ body {
 .header {
   margin-bottom: 5px;
 }
+.header + div {
+  margin-bottom: 25px;
+}
+.comment {
+  background: rgba(128, 128, 128, 0.1411764705882353);
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 5px;
+}

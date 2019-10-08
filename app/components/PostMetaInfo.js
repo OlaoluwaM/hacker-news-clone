@@ -23,7 +23,8 @@ export default function PostMetaInfo({ id, by, time, descendants, getPostID }) {
 }
 
 PostMetaInfo.propTypes = {
-  by: PropTypes.string.isRequired,
+  by: PropTypes.string,
   time: PropTypes.number.isRequired,
-  descendants: PropTypes.number
+  descendants: PropTypes.number,
+  getPostID: PropTypes.func
 };
