@@ -1,20 +1,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import toFullDateString from '../utils/helper';
+import { Link } from 'react-router-dom';
 
-export default function PostMetaInfo({ id, by, time, descendants, getPostID }) {
+export default function PostMetaInfo({ id, by, time, descendants }) {
   return (
     <div className='meta-info-light'>
       <span>
-        by <a href='#'>{by}</a>
+        by{' '}
+        <Link
+          to={{
+            pathname: '/user',
+            search: `?id=${by}`
+          }}>
+          {by}
+        </Link>
       </span>
       <span>on {toFullDateString(time)}</span>
       {descendants !== undefined && (
         <span>
           with{' '}
-          <a href='#' onClick={() => getPostID(id)}>
+          <Link
+            to={{
+              pathname: '/post',
+              search: `?id=${id}`
+            }}>
             {descendants}
-          </a>{' '}
+          </Link>{' '}
           comments
         </span>
       )}

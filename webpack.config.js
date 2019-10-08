@@ -13,7 +13,11 @@ module.exports = {
   plugins: [new HtmlWebpackPlugin({ template: 'index.html' })],
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js'
+    filename: 'bundle.js',
+    publicPath: '/'
+  },
+  devServer: {
+    historyApiFallback: true
   },
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development'
 };

@@ -1,10 +1,31 @@
 import React from 'react';
 import Posts from './Post';
+import { fetchMainPosts } from '../utils/api';
 
-export function TopPostDisplay() {
-  return <Posts type='top' />;
+export class TopPostDisplay extends React.Component {
+  state = { data: null };
+  componentDidMount() {
+    (async () => {
+      let posts = await fetchMainPosts('topstories');
+      this.setState({ data: posts });
+    })();
+  }
+  render() {
+    const { data } = this.state;
+    return <Posts data={data} />;
+  }
 }
 
-export function NewPostDisplay() {
-  return <Posts type='new' />;
+export class NewPostDisplay extends React.Component {
+  state = { data: null };
+  componentDidMount() {
+    (async () => {
+      let posts = await fetchMainPosts('newstories');
+      this.setState({ data: posts });
+    })();
+  }
+  render() {
+    const { data } = this.state;
+    return <React.Fragment>{data && <Posts data={data} />}</React.Fragment>;
+  }
 }

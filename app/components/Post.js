@@ -1,71 +1,55 @@
 import React from 'react';
-import { fetchMainPosts } from '../utils/api';
-import Comment from './Comments';
 import Loading from './Loading';
-import PropTypes from 'prop-types';
-import PostTitle from './PostTitle';
-import PostMetaInfo from './PostMetaInfo';
+import PostList from './PostList';
 
 export default class Posts extends React.Component {
-  static propTypes = {
-    type: PropTypes.string.isRequired
-  };
-
   state = {
     posts: null,
-    showComments: false,
-    commentId: null,
     error: null
   };
 
   componentDidMount() {
-    (async () => {
-      try {
-        let posts = await fetchMainPosts(this.props.type);
-        this.setState({ posts });
-      } catch (error) {
-        console.warn(error);
-
-        this.setState({
-          error: 'Could not get posts at this time'
-        });
-      }
-    })();
+    const { data } = this.props;
+    this.setState({ posts: data });
   }
 
-  getPostID = (id) => {
-    this.setState({
-      showComments: true,
-      commentId: id
-    });
+  componentDidUpdate(prevProps) {
+    const { data } = this.props;
+    if (data !== prevProps.data) {
+      this.setState({ posts: data });
+      if (data === 'Fetch Failed') {
+        console.warn(err);
+        this.setState({ error: 'Could not get posts' });
+      }
+    }
+  }
+
+  isLoading = () => {
+    const { posts, error } = this.state;
+    return posts === null && error === null;
   };
 
   render() {
-    const { posts, error, showComments, commentId } = this.state;
+    const { posts, error } = this.state;
     return (
       <React.Fragment>
+        {this.isLoading() && <Loading message='Fetching Posts' />}
+
         {error && <p className='center-text error'>{error}</p>}
 
-        {showComments && <Comment postID={commentId} />}
-
-        <Loading data={posts} errorState={error} message='Fetching Posts' />
-
-        {posts && !showComments && (
+        {!this.isLoading() && !error && (
           <ul>
-            {posts.map(({ id, by, title, descendants, url, time }) => {
-              return (
-                <li key={id} className='post'>
-                  <PostTitle url={url} title={title} />
-                  <PostMetaInfo
-                    id={id}
-                    by={by}
-                    time={time}
-                    descendants={descendants}
-                    getPostID={this.getPostID}
-                  />
-                </li>
-              );
-            })}
+            {posts.map(({ id, by, title, descendants, url, time }) => (
+              <PostList
+                key={id}
+                id={id}
+                by={by}
+                title={title}
+                url={url}
+                time={time}
+                descendants={descendants}
+              />
+            ))}
           </ul>
         )}
       </React.Fragment>

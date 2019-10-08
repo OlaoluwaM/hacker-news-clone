@@ -1,9 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import PostTitle from './PostTitle';
+import PostTitle from './Title';
 import PostMetaInfo from './PostMetaInfo';
-import { fetchPost, onlyComments } from '../utils/api';
+import { fetchPost, fetchComments } from '../utils/api';
 import Loading from './Loading';
+import queryString from 'query-string';
 
 function CommentBody({ by, time, children }) {
   return (
@@ -15,10 +15,6 @@ function CommentBody({ by, time, children }) {
 }
 
 export default class Comment extends React.Component {
-  static propTypes = {
-    postID: PropTypes.number.isRequired
-  };
-
   state = {
     post: null,
     comments: null,
@@ -26,7 +22,8 @@ export default class Comment extends React.Component {
   };
 
   componentDidMount() {
-    const { postID } = this.props;
+    const { location } = this.props;
+    const { id: postID } = queryString.parse(location.search);
     (async () => {
       try {
         let post = await fetchPost(postID);
@@ -36,22 +33,27 @@ export default class Comment extends React.Component {
         this.setState({ error: 'Could not get post' });
       }
       try {
-        let comments = await onlyComments(this.state.post);
+        let comments = await fetchComments(this.state.post);
         this.setState({ comments });
       } catch (error) {
         console.warn(error);
-        this.setState({ error: 'Could not get comments for this post' });
+        this.setState({
+          error: 'Could not get comments for this post'
+        });
       }
     })();
   }
-
+  isLoading = (dataType) => {
+    const { error } = this.state;
+    return this.state[dataType] === null && error === null;
+  };
   render() {
     const { post, comments, error } = this.state;
     return (
       <React.Fragment>
-        <Loading data={post} errorState={error} message='Fetching Post' />
+        {this.isLoading('post') && <Loading message='Fetching Post' />}
 
-        {post && (
+        {!this.isLoading('post') && !error && (
           <React.Fragment>
             <h1 className='header'>
               <PostTitle url={post.url} title={post.title} />
@@ -65,21 +67,18 @@ export default class Comment extends React.Component {
           </React.Fragment>
         )}
 
-        {error && <p>{error}</p>}
+        {error && <p className='error center-text'>{error}</p>}
 
-        {post && (
-          <Loading
-            data={comments}
-            errorState={error}
-            message='Fetching comments'
-          />
+        {!this.isLoading('post') && this.isLoading('comments') && (
+          <Loading message='Fetching Comments' />
         )}
 
-        {comments && comments.length <= 0 && (
+        {!this.isLoading('comments') && !error && comments.length <= 0 && (
           <p className='center-text'>This post has no comments</p>
         )}
 
-        {comments &&
+        {!this.isLoading('comments') &&
+          !error &&
           comments.length > 0 &&
           comments.map(({ id, by, time, text }) => (
             <CommentBody key={id} by={by} time={time} text={text}>

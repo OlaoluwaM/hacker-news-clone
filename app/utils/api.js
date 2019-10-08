@@ -9,19 +9,58 @@ function removeDeletedPosts(posts) {
   return posts.filter(({ deleted }) => !deleted);
 }
 
+function removePostWithNoDescendant(post) {
+  return post.filter(({ descendants }) => descendants !== undefined);
+}
+
+function removePostWithNoLink(post) {
+  return post.filter(({ url }) => url);
+}
+
+function OnlyComments(post) {
+  return post.filter(({ type }) => type === 'comment');
+}
+
+function OnlyStories(post) {
+  return post.filter(({ type }) => type === 'story');
+}
+
 export async function fetchMainPosts(type) {
-  let response = await fetch(`${api}/${type}stories.${json}`);
-  let ids = await response.json();
-  let wantedIds = ids.splice(0, 50);
-  let posts = await Promise.all(wantedIds.map(fetchPost));
-  return removeDeletedPosts(removeDeadPosts(posts));
+  try {
+    let response = await fetch(`${api}/${type}.${json}`);
+    let ids = await response.json();
+    let wantedIds = ids.splice(0, 50);
+    let posts = await Promise.all(wantedIds.map(fetchPost));
+    return removeDeletedPosts(
+      removeDeadPosts(removePostWithNoLink(removePostWithNoDescendant(posts)))
+    );
+  } catch (err) {
+    return 'Fetch Failed';
+  }
 }
 
 export function fetchPost(id) {
   return fetch(`${api}/item/${id}.${json}`).then((res) => res.json());
 }
 
-export function onlyComments({ kids }) {
-  if (kids === undefined) return [];
-  return Promise.all(kids.map(fetchPost));
+function getPosts(ids) {
+  return Promise.all(ids.map(fetchPost));
+}
+
+export async function fetchComments(post) {
+  let comments = await getPosts(post.kids);
+  return removeDeadPosts(removeDeletedPosts(OnlyComments(comments)));
+}
+
+export function fetchUser(id) {
+  return fetch(`${api}/user/${id}.${json}`).then((res) => res.json());
+}
+
+export async function fetchUserPosts(user) {
+  let posts = await getPosts(user.submitted.splice(0, 50));
+  return removeDeadPosts(
+    removePostWithNoDescendant(
+      removePostWithNoLink(removeDeletedPosts(OnlyStories(posts)))
+    )
+  );
 }
