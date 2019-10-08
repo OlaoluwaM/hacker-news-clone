@@ -2,16 +2,16 @@ import React from 'react';
 
 export default class Loading extends React.Component {
   static defaultProps = {
-    text: 'Loading'
+    message: 'Loading'
   };
   isLoading = () => {
     const { data, errorState } = this.props;
-    return data === null && errorState === null;
+    return !data && !errorState;
   };
   render() {
     return (
       <React.Fragment>
-        {this.isLoading() && <p>{this.props.text}</p>}
+        {this.isLoading() && <p>{this.props.message}</p>}
       </React.Fragment>
     );
   }

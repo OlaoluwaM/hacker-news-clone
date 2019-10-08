@@ -5,8 +5,3 @@ Major Problem: Displaying the comment for each Post when the number of comments 
            2. I need a way to cause a re-render to display the comments since I am not using react router yet ✔️
            3. From the ID passed into <Comment />, I fetch the post and its kids (comments) in the componenet
            4. I need to set the state on the comments components to store the id and array of comments
-
-
-Side-Problem: Repeat Loading Logic
-
-Solution: abstract Loading Logic, by

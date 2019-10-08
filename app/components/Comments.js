@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import PostTitle from './PostTitle';
 import PostMetaInfo from './PostMetaInfo';
 import { fetchPost, onlyComments } from '../utils/api';
+import Loading from './Loading';
 
 export default class Comment extends React.Component {
   static propTypes = {
@@ -11,40 +12,33 @@ export default class Comment extends React.Component {
   state = {
     post: null,
     comments: null,
-    loading: true,
     error: null
   };
   componentDidMount() {
     const { postID } = this.props;
-    fetchPost(postID)
-      .then((post) => {
-        onlyComments(post).then((comments) =>
-          this.setState({
-            post,
-            comments,
-            loading: false,
-            error: null
-          })
-        );
-      })
-      .catch((err) => {
-        console.warn(err);
-        this.setState({
-          error: 'Could not get comments for this post'
-        });
-      });
+    (async () => {
+      try {
+        let post = await fetchPost(postID);
+        this.setState({ post });
+      } catch (error) {
+        console.warn(error);
+        this.setState({ error: 'Could not get post' });
+      }
+      try {
+        let comments = await onlyComments(this.state.post);
+        this.setState({ comments });
+      } catch (error) {
+        console.warn(error);
+        this.setState({ error: 'Could not get comments for this post' });
+      }
+    })();
   }
-  isLoading = () => {
-    const { loading, error } = this.state;
-    return error === null && loading === true;
-  };
   render() {
-    const { post, comments } = this.state;
-    console.log(this.state.post, this.state.comments);
+    const { post, comments, error } = this.state;
     return (
       <React.Fragment>
-        {this.isLoading() && <p>Loading...</p>}
-        {!this.isLoading() && (
+        <Loading data={post} errorState={error} message='Fetching Post' />
+        {post && (
           <React.Fragment>
             <h1 className='header'>
               <PostTitle url={post.url} title={post.title} />
@@ -56,6 +50,21 @@ export default class Comment extends React.Component {
               descendants={post.descendants}
             />
           </React.Fragment>
+        )}
+
+        {error && <p>{error}</p>}
+
+        {post && (
+          <Loading
+            data={comments}
+            errorState={error}
+            message='Fetching comments'
+          />
+        )}
+        
+        {comments && comments.length <= 0 && <p>This post has no comments</p>}
+        {comments && comments.length > 0 && (
+          <pre>{JSON.stringify(comments, null, 2)}</pre>
         )}
       </React.Fragment>
     );

@@ -27,6 +27,14 @@ body {
   font-weight: bold;
   color: rgb(187, 46, 31);
 }
+.error {
+  font-size: 25px;
+  margin: 60px 0;
+}
+
+.center-text {
+  text-align: center;
+}
 .meta-info-light {
   margin-top: 5px;
   color: grey;

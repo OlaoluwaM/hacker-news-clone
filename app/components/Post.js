@@ -19,20 +19,18 @@ export default class Posts extends React.Component {
   };
 
   componentDidMount() {
-    fetchMainPosts(this.props.type)
-      .then((posts) => {
-        this.setState({
-          posts,
-          error: null
-        });
-      })
-      .catch((error) => {
+    (async () => {
+      try {
+        let posts = await fetchMainPosts(this.props.type);
+        this.setState({ posts });
+      } catch (error) {
         console.warn(error);
 
         this.setState({
           error: 'Could not get posts at this time'
         });
-      });
+      }
+    })();
   }
 
   getPostID = (id) => {
@@ -46,13 +44,13 @@ export default class Posts extends React.Component {
     const { posts, error, showComments, commentId } = this.state;
     return (
       <React.Fragment>
-        {error && <p>{error}</p>}
+        {error && <p className='center-text error'>{error}</p>}
 
         {showComments && <Comment postID={commentId} />}
 
-        <Loading data={posts} errorState={error} text='Fetching Posts' />
+        <Loading data={posts} errorState={error} message='Fetching Posts' />
 
-        {posts && (
+        {posts && !showComments && (
           <ul>
             {posts.map(({ id, by, title, descendants, url, time }) => {
               return (
