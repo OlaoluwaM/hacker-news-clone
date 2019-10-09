@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { fetchUser, fetchUserPosts } from '../utils/api';
 import Loading from './Loading';
 import Posts from './Post';
@@ -18,45 +19,45 @@ function UserInfo({ created, karma }) {
   );
 }
 
-export default class User extends React.Component {
+UserInfo.propTypes = {
+  created: PropTypes.number.isRequired,
+  karma: PropTypes.number.isRequired
+};
+
+class SelectedUser extends React.Component {
+  static propTypes = {
+    username: PropTypes.string.isRequired
+  };
+
   state = {
     user: null,
-    posts: null,
     error: null
   };
-  componentDidMount() {
-    const { location } = this.props;
-    const { id: user } = queryString.parse(location.search);
 
+  componentDidMount() {
+    const { username } = this.props;
     (async () => {
       try {
-        let userData = await fetchUser(user);
-        this.setState({ user: userData });
+        let user = await fetchUser(username);
+        this.setState({ user });
       } catch (error) {
-        console.warn(error);
         this.setState({ error: 'Could not get User' });
-      }
-
-      try {
-        let userPosts = await fetchUserPosts(this.state.user);
-        this.setState({ posts: userPosts });
-      } catch (error) {
-        console.warn(error);
-        this.setState({ error: 'Could not get User Posts' });
+        throw new Error(error);
       }
     })();
   }
-  isLoading = (dataType) => {
+
+  isLoading(dataType) {
     const { error } = this.state;
     return this.state[dataType] === null && error === null;
-  };
+  }
+
   render() {
-    const { user, error, posts } = this.state;
+    const { user, error } = this.state;
+    const { children } = this.props;
     return (
       <React.Fragment>
-        {!this.isLoading('user') && error && (
-          <p className='error center-text'>{error}</p>
-        )}
+        {error && <p className='error center-text'>{error}</p>}
 
         {this.isLoading('user') && <Loading message='Fetching User' />}
 
@@ -73,14 +74,51 @@ export default class User extends React.Component {
           </React.Fragment>
         )}
 
-        {!this.isLoading('user') && this.isLoading('posts') && (
-          <Loading message='Fetching User Posts' />
-        )}
+        {!this.isLoading('user') && !error && children(user, this.isLoading)}
+      </React.Fragment>
+    );
+  }
+}
 
-        {!this.isLoading('posts') && !error && posts.length <= 0 && (
+class UserPostList extends React.Component {
+  static propTypes = {
+    user: PropTypes.object.isRequired,
+    isLoading: PropTypes.func.isRequired
+  };
+
+  state = {
+    posts: null,
+    error: null
+  };
+
+  componentDidMount() {
+    const { user } = this.props;
+    (async () => {
+      try {
+        let userPosts = await fetchUserPosts(user);
+        this.setState({ posts: userPosts });
+      } catch (error) {
+        this.setState({ error: 'Could not get User Posts' });
+        throw new Error(error);
+      }
+    })();
+  }
+
+  render() {
+    const { isLoading } = this.props;
+    const { posts, error } = this.state;
+    let loadingData = isLoading.bind(this);
+    return (
+      <React.Fragment>
+        {error && <p className='error center-text'>{error}</p>}
+
+        {loadingData('posts') && <Loading message='Fetching User Posts' />}
+
+        {!loadingData('posts') && !error && posts.length <= 0 && (
           <p className='center-text'>This user has no posts</p>
         )}
-        {!this.isLoading('posts') && !error && posts.length > 0 && (
+
+        {!loadingData('posts') && !error && posts.length > 0 && (
           <React.Fragment>
             <h2>Posts</h2>
             <Posts data={posts} />
@@ -89,4 +127,15 @@ export default class User extends React.Component {
       </React.Fragment>
     );
   }
+}
+
+export default function User(props) {
+  const { id: username } = queryString.parse(props.location.search);
+  return (
+    <SelectedUser username={username}>
+      {(userData, loading) => (
+        <UserPostList user={userData} isLoading={loading} />
+      )}
+    </SelectedUser>
+  );
 }

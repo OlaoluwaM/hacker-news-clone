@@ -18,8 +18,7 @@ export default class Posts extends React.Component {
     if (data !== prevProps.data) {
       this.setState({ posts: data });
       if (data === 'Fetch Failed') {
-        console.warn(err);
-        this.setState({ error: 'Could not get posts' });
+        this.setState({ error: 'Could not get posts at this time' });
       }
     }
   }

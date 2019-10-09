@@ -1,7 +1,3 @@
 DELETE THIS FILE WHEN PROJECT IS DONE
 
-Major Problem: User Component
-        Sub-Problem: 1. Post Component resuability
 
-
-Sub-Problem1 Solution: 1. create an api function that returns the ids for the posts we want to get, and another function that gets the                             posts
