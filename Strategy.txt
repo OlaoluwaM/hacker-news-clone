@@ -1,3 +1,4 @@
 DELETE THIS FILE WHEN PROJECT IS DONE
 
-
+Add dynamic import of components with React.lazy()
+Add theming with React.createContext() (Context API)
