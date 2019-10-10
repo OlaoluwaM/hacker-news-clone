@@ -19,11 +19,11 @@ export default class Nav extends React.Component {
               Top
             </NavLink>
           </li>
-          <l>
+          <li>
             <NavLink activeStyle={activeStyle} className='nav-link' to='/new'>
               New
             </NavLink>
-          </l>
+          </li>
         </ul>
         <button className='btn-clear'></button>
       </nav>
