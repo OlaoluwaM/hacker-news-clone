@@ -48,6 +48,7 @@ function getPosts(ids) {
 }
 
 export async function fetchComments(post) {
+  if (post.kids === undefined) return [];
   let comments = await getPosts(post.kids);
   return removeDeadPosts(removeDeletedPosts(OnlyComments(comments)));
 }
@@ -57,6 +58,7 @@ export function fetchUser(id) {
 }
 
 export async function fetchUserPosts(user) {
+  if (user.submitted === undefined) return [];
   let posts = await getPosts(user.submitted.splice(0, 50));
   return removeDeadPosts(
     removePostWithNoDescendant(
