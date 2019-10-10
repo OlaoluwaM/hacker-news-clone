@@ -33,7 +33,7 @@ class App extends React.Component {
                   <Route path='/new' component={NewPostDisplay} />
                   <Route path='/post' component={Comment} />
                   <Route path='/user' component={User} />
-                  <Route render={() => <h1>404</h1>} />
+                  <Route render={() => <h1 className='center-text'>404</h1>} />
                 </Switch>
               </React.Suspense>
             </div>
