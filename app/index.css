@@ -10,6 +10,11 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen-Sans,
     Ubuntu, Cantarell, Helvetica Neue, sans-serif;
 }
+.dark {
+  color: #dadada;
+  background: #1c2022;
+  min-height: 100%;
+}
 .container {
   padding: 50px;
   margin: 0 auto;
@@ -35,7 +40,8 @@ body {
 .center-text {
   text-align: center;
 }
-.meta-info-light {
+.meta-info-light,
+.meta-info-dark {
   margin-top: 5px;
   color: grey;
 }
@@ -43,8 +49,15 @@ body {
   margin: 10px 0;
   margin-right: 6px;
 }
+.meta-info-dark span {
+  margin: 10px 0;
+  margin-right: 6px;
+}
 .meta-info-light a {
   color: black;
+}
+.meta-info-dark a {
+  color: #bebebe;
 }
 .header {
   margin-bottom: 5px;
@@ -77,4 +90,12 @@ body {
 .btn-clear {
   border: none;
   background: transparent;
+}
+button,
+a {
+  cursor: pointer;
+  outline: none;
+}
+.dark a {
+  color: rgb(203, 203, 203);
 }

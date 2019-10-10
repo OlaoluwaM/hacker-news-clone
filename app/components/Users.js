@@ -5,17 +5,22 @@ import Loading from './Loading';
 import Posts from './Post';
 import toFullDateString from '../utils/helper';
 import queryString from 'query-string';
+import { ThemeConsumer } from '../contexts/Context';
 
 function UserInfo({ created, karma }) {
   return (
-    <div className='meta-info-light'>
-      <span>
-        joined <b>{toFullDateString(created)}</b>
-      </span>
-      <span>
-        has <b>{karma}</b> karma
-      </span>
-    </div>
+    <ThemeConsumer>
+      {({ theme }) => (
+        <div className={`meta-info-${theme}`}>
+          <span>
+            joined <b>{toFullDateString(created)}</b>
+          </span>
+          <span>
+            has <b>{karma}</b> karma
+          </span>
+        </div>
+      )}
+    </ThemeConsumer>
   );
 }
 
