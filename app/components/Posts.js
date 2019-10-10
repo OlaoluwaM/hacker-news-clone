@@ -26,6 +26,6 @@ export class NewPostDisplay extends React.Component {
   }
   render() {
     const { data } = this.state;
-    return <React.Fragment>{data && <Posts data={data} />}</React.Fragment>;
+    return <Posts data={data} />;
   }
 }
