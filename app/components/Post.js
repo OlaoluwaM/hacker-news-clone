@@ -1,57 +1,47 @@
 import React from 'react';
 import Loading from './Loading';
 import PostList from './PostList';
+import postsReducer from '../reducers/PostsReducer';
 
-export default class Posts extends React.Component {
-  state = {
+export default function Posts({ data }) {
+  const [state, dispatch] = React.useReducer(postsReducer, {
     posts: null,
     error: null
-  };
+  });
 
-  componentDidMount() {
-    const { data } = this.props;
-    this.setState({ posts: data });
-  }
+  const { posts, error } = state;
 
-  componentDidUpdate(prevProps) {
-    const { data } = this.props;
-    if (data !== prevProps.data) {
-      this.setState({ posts: data });
-      if (data === 'Fetch Failed') {
-        this.setState({ error: 'Could not get posts at this time' });
-      }
-    }
-  }
+  React.useEffect(() => {
+    if (data === 'Fetch Failed') dispatch({ type: 'Error' });
+    else dispatch({ type: 'Success', data });
+    return () => dispatch({ type: 'Reset' });
+  }, [data]);
 
-  isLoading = () => {
-    const { posts, error } = this.state;
+  const isLoading = () => {
     return posts === null && error === null;
   };
 
-  render() {
-    const { posts, error } = this.state;
-    return (
-      <React.Fragment>
-        {this.isLoading() && <Loading message='Fetching Posts' />}
+  return (
+    <React.Fragment>
+      {isLoading() && <Loading message='Fetching Posts' />}
 
-        {error && <p className='center-text error'>{error}</p>}
+      {error && <p className='center-text error'>{error}</p>}
 
-        {!this.isLoading() && !error && (
-          <ul>
-            {posts.map(({ id, by, title, descendants, url, time }) => (
-              <PostList
-                key={id}
-                id={id}
-                by={by}
-                title={title}
-                url={url}
-                time={time}
-                descendants={descendants}
-              />
-            ))}
-          </ul>
-        )}
-      </React.Fragment>
-    );
-  }
+      {!isLoading() && !error && (
+        <ul>
+          {posts.map(({ id, by, title, descendants, url, time }) => (
+            <PostList
+              key={id}
+              id={id}
+              by={by}
+              title={title}
+              url={url}
+              time={time}
+              descendants={descendants}
+            />
+          ))}
+        </ul>
+      )}
+    </React.Fragment>
+  );
 }

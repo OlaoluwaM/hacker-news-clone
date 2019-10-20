@@ -4,6 +4,7 @@ import PostTitle from './Title';
 import PostMetaInfo from './PostMetaInfo';
 import { fetchPost, fetchComments } from '../utils/api';
 import Loading from './Loading';
+import useStartingData from '../reducers/DataReducer';
 import queryString from 'query-string';
 
 function CommentBody({ by, time, children }) {
@@ -15,125 +16,106 @@ function CommentBody({ by, time, children }) {
   );
 }
 
-CommentBody.propTypes = {
-  by: PropTypes.string.isRequired,
-  time: PropTypes.number.isRequired
-};
+function SelectedPost({ postID, children }) {
+  const { state, dispatch, isLoading } = useStartingData();
 
-class SelectedPost extends React.Component {
-  static propTypes = {
-    postID: PropTypes.number.isRequired
-  };
+  const { data, error } = state;
 
-  state = {
-    post: null,
-    error: null
-  };
-
-  componentDidMount() {
-    const { postID } = this.props;
+  React.useEffect(() => {
     (async () => {
       try {
         let post = await fetchPost(postID);
-        this.setState({ post });
+        dispatch({ type: 'Success', data: post });
       } catch (error) {
-        this.setState({ error: 'Could not get post' });
-        throw new Error(error);
+        console.warn(error);
+        dispatch({ type: 'Error', error: 'Could not get this post' });
       }
     })();
-  }
+  }, []);
 
-  isLoading(dataType) {
-    const { error } = this.state;
-    return this.state[dataType] === null && error === null;
-  }
+  return (
+    <React.Fragment>
+      {error && <p className='error center-text'>{error}</p>}
 
-  render() {
-    const { post, error } = this.state;
-    const { children } = this.props;
-    return (
-      <React.Fragment>
-        {error && <p className='error center-text'>{error}</p>}
+      {isLoading() && <Loading message='Fetching Post' />}
 
-        {this.isLoading('post') && <Loading message='Fetching Post' />}
+      {!isLoading() && !error && (
+        <React.Fragment>
+          <h1 className='header'>
+            <PostTitle url={data.url} title={data.title} />
+          </h1>
+          <PostMetaInfo
+            id={data.id}
+            by={data.by}
+            time={data.time}
+            descendants={data.descendants}
+          />
+        </React.Fragment>
+      )}
 
-        {!this.isLoading('post') && !error && (
-          <React.Fragment>
-            <h1 className='header'>
-              <PostTitle url={post.url} title={post.title} />
-            </h1>
-            <PostMetaInfo
-              id={post.id}
-              by={post.by}
-              time={post.time}
-              descendants={post.descendants}
-            />
-          </React.Fragment>
-        )}
-
-        {!this.isLoading('post') && !error && children(post, this.isLoading)}
-      </React.Fragment>
-    );
-  }
+      {!isLoading() && !error && children(data)}
+    </React.Fragment>
+  );
 }
 
-class CommentList extends React.Component {
-  static propTypes = {
-    post: PropTypes.object.isRequired,
-    isLoading: PropTypes.func.isRequired
-  };
-  state = {
-    comments: null,
-    error: null
-  };
+function CommentList({ post }) {
+  const { state, dispatch, isLoading } = useStartingData();
 
-  componentDidMount() {
-    const { post } = this.props;
+  const { data, error } = state;
+
+  React.useEffect(() => {
     (async () => {
       try {
         let comments = await fetchComments(post);
-        this.setState({ comments });
+        dispatch({ type: 'Success', data: comments });
       } catch (error) {
-        this.setState({ error: 'Could not fetch comments for this post' });
-        throw new Error(error);
+        console.warn(error);
+        dispatch({
+          type: 'Error',
+          error: 'Could not get comments for this post'
+        });
       }
     })();
-  }
+  }, []);
 
-  render() {
-    const { isLoading } = this.props;
-    const { comments, error } = this.state;
-    let loadingData = isLoading.bind(this);
-    return (
-      <React.Fragment>
-        {error && <p className='error center-text'>{error}</p>}
+  return (
+    <React.Fragment>
+      {error && <p className='error center-text'>{error}</p>}
 
-        {loadingData('comments') && <Loading message='Fetching Comments' />}
+      {isLoading() && <Loading message='Fetching Comments' />}
 
-        {!loadingData('comments') && !error && comments.length <= 0 && (
-          <p className='center-text'>This post has no comments</p>
-        )}
+      {!isLoading() && !error && data.length <= 0 && (
+        <p className='center-text'>This post has no comments</p>
+      )}
 
-        {!loadingData('comments') &&
-          !error &&
-          comments.length > 0 &&
-          comments.map(({ id, by, time, text }) => (
-            <CommentBody key={id} by={by} time={time} text={text}>
-              <p dangerouslySetInnerHTML={{ __html: text }}></p>
-            </CommentBody>
-          ))}
-      </React.Fragment>
-    );
-  }
+      {!isLoading() &&
+        !error &&
+        data.length > 0 &&
+        data.map(({ id, by, time, text }) => (
+          <CommentBody key={id} by={by} time={time} text={text}>
+            <p dangerouslySetInnerHTML={{ __html: text }}></p>
+          </CommentBody>
+        ))}
+    </React.Fragment>
+  );
 }
 
 export default function Comment(props) {
   const { id: postID } = queryString.parse(props.location.search);
   return (
     <SelectedPost postID={Number(postID)}>
-      {(postData, loading) => (
-        <CommentList post={postData} isLoading={loading} />
-      )}
+      {(postData) => <CommentList post={postData} />}
     </SelectedPost>
   );
 }
+
+CommentBody.propTypes = {
+  by: PropTypes.string.isRequired,
+  time: PropTypes.number.isRequired
+};
+CommentList.propTypes = {
+  post: PropTypes.object.isRequired
+};
+SelectedPost.propTypes = {
+  postID: PropTypes.number.isRequired
+};
