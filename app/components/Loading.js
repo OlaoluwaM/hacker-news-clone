@@ -27,7 +27,7 @@ export default function Loading({ message, speed }) {
       }
     }, speed);
     return () => clearInterval(interval.current);
-  }, [count]);
+  }, [memoizedCount.length, speed]);
 
   return <p style={styles.message}>{`${message}${count}`}</p>;
 }
